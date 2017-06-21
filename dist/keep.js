@@ -4,8 +4,13 @@
 
 const pluginName = 'keep'
 const pluginVersion = '1.0.0'
-const targetAttr = 'keep'
-const allowedTargets = [ 'input', 'textarea', 'select' ]
+
+const tagAttr = 'keep'
+const lazyAttr = `${tagAttr}-lazy`
+const multipleAttr = `${tagAttr}-multiple`
+
+const allowedTagNames = [ 'input', 'textarea', 'select' ]
+const deniedTypes = ['password']
 
 class Keep {
 	constructor(config) {
@@ -17,30 +22,80 @@ class Keep {
 		this.config = config
 
 		// HTMLElements
-		this.targets = []
+		this.els = []
+
+		// Options
+		this.opts = { lazy: 0, multiple: 0 }
 
 		// Gets HTMLElements and set them to targets attribute
-		this.setTargets()
+		this.setElts()
+
+		// Listem to targets el
+		this.core()
 	}
 
 	// Setting normally the targets's HTMLElement
-	setTargets () {
-		if (Array.isArray(this.config)) {
-			// Plugin initialized with defaults configuration. So just keep data and return the last one when required.
-			// Here @config should be an array of the targets element id
-			for (const id of this.config) {
+	setElts () {
+		// Plugin initialized by tag attributes
+		// Get all allowed tag elements that got @tagAttr
+		for (const tagName of allowedTagNames) {
+			for (const candidateEl of document.getElementsByTagName(tagName)) {
+				if (candidateEl.hasAttribute(tagAttr) && !this.els.includes(candidateEl) && (!deniedTypes.includes(candidateEl.type))) {
+					this.els.push(candidateEl)
+				}
+			}
+		}
+
+		if (this.config) {
+			// Plugin initialized by keep([...IDs])
+			// Get all allowed tag elements by those IDs
+			let tIDs = []
+			if (Array.isArray(this.config)) {
+				tIDs = this.config
+			} else {
+				if (this.config.hasOwnProperty('targets')) {
+					tIDs = this.config.targets
+					this.opts = this.config.opts
+				}
+			}
+
+			for (const id of tIDs) {
 				const el = document.getElementById(`${id}`)
-				if (el && allowedTargets.includes(el.tagName.toLowerCase())) {
-					if (el.tagName.toLowerCase() === 'input' && el.type === 'password') {
+				if (el && allowedTagNames.includes(el.tagName.toLowerCase())) {
+					if (el.tagName.toLowerCase() === 'input' && deniedTypes.includes(el.type)) {
 					} else {
-						this.targets.push(el)
+						if (!this.els.includes(el)) {
+							this.els.push(el)
+						}
 					}
 				}
 			}
 		}
 	}
+
+	// Listen to el.keypress
+	core () {
+		for (const el of this.els) {
+			const elOpts = {
+				lazy: el.hasAttribute(lazyAttr) || this.opts.lazy,
+				multiple: el.hasAttribute(multipleAttr) || this.opts.multiple
+			}
+
+			if (elOpts.lazy) {
+				// Keep data on focusout or blur
+			} else {
+				// Keep data on keypress
+			}
+
+			if (elOpts.multiple) {
+				// Don't overwrite old data for this el
+			} else {
+				// Old data will be replaced by new one
+			}
+		}
+	}
 }
 
-window.keep = (config) => {
+window.keep = config => {
 	return new Keep(config)
 }
