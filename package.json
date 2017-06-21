@@ -1,0 +1,25 @@
+{
+  "name": "keep",
+  "version": "1.0.0",
+  "description": "Keep inputs, textareas and selects data even if page is refreshed.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://phareal@bitbucket.org/phareal/keepjs.git"
+  },
+  "keywords": [
+    "Keep",
+    "KeepData",
+    "Input",
+    "Textarea",
+    "Select",
+    "HTML",
+    "LocalStorage",
+    "Backup"
+  ],
+  "author": "Jean-jacques AKAKPO (akakpo.jeanjacques@gmail.com)",
+  "license": "MIT"
+}
